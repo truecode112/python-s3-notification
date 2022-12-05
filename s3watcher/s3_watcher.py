@@ -58,7 +58,6 @@ class S3Watcher:
                 for record in body.get("Records", []):
                     event = self._create_event(record)
                     yield event
-                    print('yield event')
                 LOGGER.info(f"Processed and deleting message {msg_id}")
                 # TODO: should the message be deleted here?
                 msg.delete()

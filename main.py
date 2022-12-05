@@ -119,9 +119,14 @@ def start_watch(bucket_name):
     bucket_notification = s3_client.get_bucket_notification(Bucket=bucket_name, ExpectedBucketOwner=get_account_number());
     if "QueueConfiguration" in bucket_notification:
         queueConfig = bucket_notification['QueueConfiguration']
+        #print(queueConfig)
         if "Queue" in queueConfig:
             queue = queueConfig['Queue']
-            watcher = S3Watcher(bucket=bucket_name, queue_url='https://sqs.us-east-1.amazonaws.com/582543755554/testqueue2')
+            queue_name = queue.split(':')[-1]
+            sqs_client = boto3.client('sqs')
+            queue_url = sqs_client.get_queue_url(QueueName=queue_name, QueueOwnerAWSAccountId=get_account_number())
+            #print(queue_url['QueueUrl'])
+            watcher = S3Watcher(bucket=bucket_name, queue_url=queue_url['QueueUrl'])
             for event in watcher.watch():
                 print(event)
         else:
