@@ -40,6 +40,7 @@ def create_queue(name, attributes=None):
             Attributes=attributes
         )
         logger.info("Created queue '%s' with URL=%s", name, queue.url)
+        print("Created queue {0} with URL={1}".format(name, queue.url))
     except ClientError as error:
         logger.exception("Couldn't create queue named '%s'.", name)
         raise error
