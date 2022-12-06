@@ -146,14 +146,33 @@ def start_watch_s3():
         select_bucket_menu.append_item(bucket_item)
     select_bucket_menu.show()
 
+def delete_queue_with_url(queue_url):
+    sqs_client = boto3.client('sqs')
+    sqs_client.delete_queue(QueueUrl=queue_url)
+
+def delete_queue():
+    sqs_client = boto3.client('sqs')
+    queue_list = sqs_client.list_queues()
+    queue_urls = []
+    select_queue_menu = ConsoleMenu("Select queue", "Please select queue to delete", None, None, None, None, False, True, "Back")
+    for queue_url in queue_list['QueueUrls']:
+        queue_urls.append(queue_url)
+    for queue_url_str in queue_urls:
+        queue_url_item = FunctionItem(queue_url_str.split('/')[-1], delete_queue_with_url, [queue_url_str], None, None, True)
+        select_queue_menu.append_item(queue_url_item)
+    select_queue_menu.show()
+
 def show_main_menu():
     list_bucket_item = FunctionItem("List Buckets", list_bucket)
     create_sqs_item = FunctionItem("Create SQS", create_sqs)
     s3_watch_item = FunctionItem("Watch S3 Bucket", start_watch_s3)
+    delete_queue_item = FunctionItem("Delete queue", delete_queue)
+
     menu = ConsoleMenu("S3 bucket watcher", "You can list S3 buckets and create AWS SQS for s3 bucket event", None, None, None, None, False)
     menu.append_item(list_bucket_item)
     menu.append_item(create_sqs_item)
     menu.append_item(s3_watch_item)
+    menu.append_item(delete_queue_item)
     menu.show()
 
 show_main_menu()
